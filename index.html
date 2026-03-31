@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estimador de Proyectos | Periferia IT Group</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --green-dark: #15601d;
+            --green-neon: #6DFD8C;
+            --green-light: #CCFFD6;
+            --dark: #212121;
+            --white: #ffffff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0a2e14 0%, #15601d 40%, #1a7a25 100%);
+            color: var(--dark);
+            min-height: 100vh;
+        }
+
+        /* ===== HEADER ===== */
+        header {
+            background: rgba(33, 33, 33, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 14px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--green-neon);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo-icon {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--green-neon), var(--green-dark));
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800; color: #fff; font-size: 18px;
+        }
+
+        .logo-text {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: var(--green-neon);
+            font-size: 18px;
+        }
+
+        .header-badge {
+            color: var(--green-light);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* ===== MAIN ===== */
+        main {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            text-align: center;
+            margin-bottom: 36px;
+        }
+
+        .hero h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 800;
+            color: var(--green-light);
+            line-height: 1.15;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            color: rgba(204, 255, 214, 0.65);
+            font-size: 16px;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        .features {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .feature-item {
+            display: flex; align-items: center; gap: 8px;
+            color: rgba(204, 255, 214, 0.55);
+            font-size: 13px;
+        }
+
+        /* ===== CARD ===== */
+        .card {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--green-dark);
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 180px;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus { border-color: var(--green-dark); }
+        textarea::placeholder { color: #aaa; }
+
+        .char-count {
+            font-size: 12px;
+            color: #888;
+            margin: 8px 0 20px;
+        }
+
+        .char-count .warn { color: #e67e22; margin-left: 12px; }
+
+        /* ===== BUTTONS ===== */
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: var(--green-dark);
+            color: var(--green-neon);
+            border: none;
+            border-radius: 64px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary:hover {
+            background: var(--green-neon);
+            color: var(--green-dark);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        .btn-download {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px;
+            background: var(--green-neon);
+            color: var(--green-dark);
+            border: none;
+            border-radius: 64px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-download:hover {
+            background: var(--green-dark);
+            color: var(--green-neon);
+        }
+
+        .btn-secondary {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px;
+            background: transparent;
+            color: var(--green-light);
+            border: 2px solid rgba(109, 253, 140, 0.4);
+            border-radius: 64px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--green-neon);
+            color: var(--green-neon);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== ERROR ===== */
+        .error-box {
+            background: #fff0f0;
+            border: 1px solid #ffcccc;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #c0392b;
+        }
+
+        /* ===== LOADING ===== */
+        .loading-section {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .spinner {
+            width: 64px; height: 64px;
+            margin: 0 auto 24px;
+            border: 4px solid rgba(109, 253, 140, 0.2);
+            border-top: 4px solid var(--green-neon);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-section h2 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--green-light);
+            margin-bottom: 8px;
+        }
+
+        .loading-section p {
+            color: rgba(204, 255, 214, 0.5);
+            font-size: 14px;
+        }
+
+        /* ===== RESULTS ===== */
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .result-header h2 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: var(--green-dark);
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .tag {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .tag-green { background: var(--green-light); color: var(--green-dark); }
+        .tag-teal { background: #e8f5e9; color: #2e7d32; }
+        .tag-purple { background: #f3e5f5; color: #7b1fa2; }
+
+        .stats-boxes { display: flex; gap: 16px; text-align: center; }
+
+        .stat-box {
+            border-radius: 12px;
+            padding: 14px 20px;
+            min-width: 100px;
+        }
+
+        .stat-box-green { background: var(--green-dark); }
+        .stat-box-dark { background: var(--dark); }
+
+        .stat-number {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            color: var(--green-neon);
+            font-size: 28px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .stat-box-green .stat-label { color: var(--green-light); }
+        .stat-box-dark .stat-label { color: #aaa; }
+
+        /* ===== TABLE ===== */
+        .table-section h3 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--green-dark);
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .table-wrap { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead tr { border-bottom: 2px solid var(--green-dark); }
+
+        th {
+            text-align: left;
+            padding: 10px 8px;
+            color: var(--green-dark);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            line-height: 1.4;
+        }
+
+        td.act-name { font-weight: 600; color: #333; }
+        td.act-desc { color: #555; }
+
+        td.act-hours {
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--green-dark);
+        }
+
+        tfoot tr {
+            border-top: 2px solid var(--green-dark);
+            background: #f8fdf9;
+        }
+
+        tfoot td {
+            padding: 12px 8px;
+            font-weight: 700;
+            color: var(--green-dark);
+        }
+
+        tfoot td.total-hours {
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        /* ===== SIDE PANELS ===== */
+        .panels {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .panel {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .panel h3 {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 600;
+            color: var(--green-dark);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .pct-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+        }
+
+        .pct-row:not(:last-of-type) { border-bottom: 1px solid #f0f0f0; }
+
+        .pct-label { color: #555; font-size: 13px; }
+        .pct-value { font-weight: 700; color: var(--green-dark); font-size: 14px; }
+
+        .pct-total {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0 0;
+            border-top: 2px solid var(--green-dark);
+            margin-top: 8px;
+        }
+
+        .pct-total-label { font-weight: 700; color: var(--green-dark); font-size: 13px; }
+
+        .pct-total-value {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            color: var(--green-dark);
+            font-size: 18px;
+        }
+
+        .note-item {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 24px;
+            color: rgba(204, 255, 214, 0.3);
+            font-size: 12px;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in { animation: fadeIn 0.4s ease; }
+
+        /* ===== HIDDEN ===== */
+        .hidden { display: none !important; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .card { padding: 20px; }
+            .stats-boxes { flex-direction: column; }
+            .result-header { flex-direction: column; }
+            .header-badge { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header>
+        <div class="logo-area">
+            <div class="logo-icon">P</div>
+            <span class="logo-text">Periferia IT Group</span>
+        </div>
+        <span class="header-badge">Estimador de Proyectos IA</span>
+    </header>
+
+    <main>
+        <!-- ===== STEP 1: INPUT ===== -->
+        <section id="step-input" class="fade-in">
+            <div class="hero">
+                <h1>Estimador inteligente<br>de proyectos</h1>
+                <p>Describe tu proyecto y nuestra IA generará una estimación profesional con desglose de actividades y horas.</p>
+            </div>
+
+            <div class="card">
+                <label for="descripcion">Descripción del proyecto</label>
+                <textarea id="descripcion" placeholder="Ejemplo: Necesito desarrollar un dashboard en Power BI conectado a Azure DevOps vía OData para visualizar métricas de productividad del equipo de desarrollo, incluyendo velocity, lead time, cycle time y cumplimiento de sprints..."></textarea>
+
+                <div class="char-count">
+                    <span id="char-count">0</span> caracteres
+                    <span id="char-warn" class="warn hidden">Agrega más detalles para una mejor estimación</span>
+                </div>
+
+                <div id="error-box" class="error-box hidden"></div>
+
+                <button id="btn-estimar" class="btn-primary" disabled onclick="estimar()">
+                    Generar estimación con IA
+                </button>
+            </div>
+
+            <div class="features">
+                <div class="feature-item"><span>⚡</span> Estimación en segundos</div>
+                <div class="feature-item"><span>📊</span> Exporta a Excel</div>
+                <div class="feature-item"><span>🤖</span> IA especializada</div>
+            </div>
+        </section>
+
+        <!-- ===== STEP 2: LOADING ===== -->
+        <section id="step-loading" class="loading-section hidden">
+            <div class="spinner"></div>
+            <h2 id="loading-text">Analizando proyecto...</h2>
+            <p>Esto puede tomar unos segundos...</p>
+        </section>
+
+        <!-- ===== STEP 3: RESULTS ===== -->
+        <section id="step-result" class="hidden fade-in">
+
+            <!-- Header card -->
+            <div class="card" id="result-header-card">
+                <div class="result-header">
+                    <div>
+                        <h2 id="result-cliente"></h2>
+                        <div class="tags" id="result-tags"></div>
+                    </div>
+                    <div class="stats-boxes">
+                        <div class="stat-box stat-box-green">
+                            <div class="stat-number" id="stat-dev"></div>
+                            <div class="stat-label">Horas Dev</div>
+                        </div>
+                        <div class="stat-box stat-box-dark">
+                            <div class="stat-number" id="stat-total"></div>
+                            <div class="stat-label">Horas Total</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table card -->
+            <div class="card table-section">
+                <h3>Desglose de actividades</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:25%">Actividad</th>
+                                <th style="width:35%">Descripción</th>
+                                <th style="width:30%">Funcionalidades</th>
+                                <th style="width:10%;text-align:center">Horas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="result-tbody"></tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3">TOTAL DESARROLLO</td>
+                                <td class="total-hours" id="result-total-dev"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Panels -->
+            <div class="panels">
+                <div class="card panel">
+                    <h3>Porcentajes adicionales</h3>
+                    <div class="pct-row"><span class="pct-label">Pruebas unitarias</span><span class="pct-value" id="pct-pruebas"></span></div>
+                    <div class="pct-row"><span class="pct-label">Entendimiento</span><span class="pct-value" id="pct-entendimiento"></span></div>
+                    <div class="pct-row"><span class="pct-label">Riesgo</span><span class="pct-value" id="pct-riesgo"></span></div>
+                    <div class="pct-total">
+                        <span class="pct-total-label">Total horas proyecto</span>
+                        <span class="pct-total-value" id="pct-total-horas"></span>
+                    </div>
+                </div>
+                <div class="card panel" id="panel-notas">
+                    <h3>Notas importantes</h3>
+                    <div id="result-notas"></div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="btn-row">
+                <button class="btn-download" onclick="descargarExcel()">Descargar Excel</button>
+                <button class="btn-secondary" onclick="nuevaEstimacion()">Nueva estimación</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>Powered by Groq AI &bull; Periferia IT Group</footer>
+
+    <script>
+        // ===== STATE =====
+        let resultData = null;
+
+        // ===== DOM ELEMENTS =====
+        const textarea = document.getElementById('descripcion');
+        const charCount = document.getElementById('char-count');
+        const charWarn = document.getElementById('char-warn');
+        const btnEstimar = document.getElementById('btn-estimar');
+        const errorBox = document.getElementById('error-box');
+        const stepInput = document.getElementById('step-input');
+        const stepLoading = document.getElementById('step-loading');
+        const stepResult = document.getElementById('step-result');
+        const loadingText = document.getElementById('loading-text');
+
+        // ===== TEXTAREA EVENTS =====
+        textarea.addEventListener('input', function () {
+            const len = this.value.length;
+            charCount.textContent = len;
+            charWarn.classList.toggle('hidden', len === 0 || len >= 50);
+            btnEstimar.disabled = len < 20;
+        });
+
+        // ===== LOADING MESSAGES =====
+        const loadingMessages = [
+            "Analizando proyecto...",
+            "Identificando componentes técnicos...",
+            "Estimando horas por actividad...",
+            "Calculando porcentajes adicionales...",
+            "Generando estimación final..."
+        ];
+        let loadingInterval = null;
+
+        function startLoadingAnimation() {
+            let i = 0;
+            loadingInterval = setInterval(() => {
+                i = (i + 1) % loadingMessages.length;
+                loadingText.textContent = loadingMessages[i];
+            }, 2500);
+        }
+
+        function stopLoadingAnimation() {
+            if (loadingInterval) clearInterval(loadingInterval);
+        }
+
+        // ===== SHOW/HIDE STEPS =====
+        function showStep(step) {
+            stepInput.classList.add('hidden');
+            stepLoading.classList.add('hidden');
+            stepResult.classList.add('hidden');
+            if (step === 'input') stepInput.classList.remove('hidden');
+            if (step === 'loading') stepLoading.classList.remove('hidden');
+            if (step === 'result') stepResult.classList.remove('hidden');
+        }
+
+        // ===== ESTIMATE =====
+        async function estimar() {
+            const desc = textarea.value.trim();
+            if (desc.length < 20) return;
+
+            errorBox.classList.add('hidden');
+            showStep('loading');
+            startLoadingAnimation();
+
+            try {
+                const res = await fetch('/api/estimar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ descripcion: desc })
+                });
+
+                const data = await res.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                resultData = data;
+                renderResult(data);
+                showStep('result');
+
+            } catch (err) {
+                errorBox.textContent = err.message || 'Error al generar la estimación. Intenta de nuevo.';
+                errorBox.classList.remove('hidden');
+                showStep('input');
+            } finally {
+                stopLoadingAnimation();
+            }
+        }
+
+        // ===== RENDER RESULTS =====
+        function renderResult(data) {
+            // Header
+            document.getElementById('result-cliente').textContent = data.cliente || 'Proyecto';
+
+            // Tags
+            const tagsDiv = document.getElementById('result-tags');
+            tagsDiv.innerHTML = '';
+            if (data.backend) tagsDiv.innerHTML += `<span class="tag tag-green">${data.backend}</span>`;
+            if (data.frontend) tagsDiv.innerHTML += `<span class="tag tag-teal">${data.frontend}</span>`;
+            if (data.base_datos) tagsDiv.innerHTML += `<span class="tag tag-purple">${data.base_datos}</span>`;
+
+            // Calculate totals
+            const acts = data.actividades || [];
+            const totalDev = acts.reduce((s, a) => s + (a.horas || 0), 0);
+            const totalProy = Math.round(totalDev * (1 + (data.pruebas_pct || 0) / 100 + (data.entendimiento_pct || 0) / 100 + (data.riesgo_pct || 0) / 100));
+
+            document.getElementById('stat-dev').textContent = totalDev;
+            document.getElementById('stat-total').textContent = totalProy;
+
+            // Table
+            const tbody = document.getElementById('result-tbody');
+            tbody.innerHTML = '';
+            acts.forEach(act => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="act-name">${act.actividad || ''}</td>
+                    <td class="act-desc">${act.descripcion || ''}</td>
+                    <td class="act-desc">${act.funcionalidades || ''}</td>
+                    <td class="act-hours">${act.horas || 0}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('result-total-dev').textContent = totalDev + 'h';
+
+            // Percentages
+            document.getElementById('pct-pruebas').textContent = (data.pruebas_pct || 0) + '%';
+            document.getElementById('pct-entendimiento').textContent = (data.entendimiento_pct || 0) + '%';
+            document.getElementById('pct-riesgo').textContent = (data.riesgo_pct || 0) + '%';
+            document.getElementById('pct-total-horas').textContent = totalProy + 'h';
+
+            // Notes
+            const notasDiv = document.getElementById('result-notas');
+            notasDiv.innerHTML = '';
+            if (data.notas && data.notas.length > 0) {
+                data.notas.forEach(nota => {
+                    notasDiv.innerHTML += `<p class="note-item">• ${nota}</p>`;
+                });
+                document.getElementById('panel-notas').classList.remove('hidden');
+            } else {
+                document.getElementById('panel-notas').classList.add('hidden');
+            }
+        }
+
+        // ===== DOWNLOAD EXCEL =====
+        async function descargarExcel() {
+            if (!resultData) return;
+
+            try {
+                const res = await fetch('/api/descargar-excel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(resultData)
+                });
+
+                if (!res.ok) throw new Error('Error al generar el Excel');
+
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                const cliente = (resultData.cliente || 'Proyecto').replace(/\s+/g, '_').substring(0, 30);
+                a.download = `Estimacion_${cliente}.xlsx`;
+                a.click();
+                URL.revokeObjectURL(url);
+
+            } catch (err) {
+                alert('Error al descargar el Excel: ' + err.message);
+            }
+        }
+
+        // ===== NEW ESTIMATION =====
+        function nuevaEstimacion() {
+            resultData = null;
+            textarea.value = '';
+            charCount.textContent = '0';
+            btnEstimar.disabled = true;
+            errorBox.classList.add('hidden');
+            showStep('input');
+        }
+    </script>
+</body>
+</html>
