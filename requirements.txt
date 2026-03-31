@@ -1,4 +1,4 @@
 flask
 openpyxl
-requests
+groq
 gunicorn
