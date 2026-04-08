@@ -292,6 +292,36 @@
         .tag-green { background: var(--green-light); color: var(--green-dark); }
         .tag-teal { background: #e8f5e9; color: #2e7d32; }
         .tag-purple { background: #f3e5f5; color: #7b1fa2; }
+        .tag-blue { background: #e3f2fd; color: #1565c0; }
+
+        .tag-labeled {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+        }
+
+        .tag-caption {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.65;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 4px;
+        }
+
+        input[type="text"]:focus { border-color: var(--green-dark); }
 
         .stats-boxes { display: flex; gap: 16px; text-align: center; }
 
@@ -486,7 +516,10 @@
             </div>
 
             <div class="card">
-                <label for="descripcion">Descripción del proyecto</label>
+                <label for="nombre-cliente">Nombre del cliente</label>
+                <input type="text" id="nombre-cliente" placeholder="Ej: Empresa XYZ S.A.S." />
+
+                <label for="descripcion" style="margin-top: 20px;">Descripción del proyecto</label>
                 <textarea id="descripcion" placeholder="Ejemplo: Necesito desarrollar un dashboard en Power BI conectado a Azure DevOps vía OData para visualizar métricas de productividad del equipo de desarrollo, incluyendo velocity, lead time, cycle time y cumplimiento de sprints..."></textarea>
 
                 <div class="char-count">
@@ -588,7 +621,7 @@
         </section>
     </main>
 
-    <footer>Powered by Groq AI &bull; Periferia IT Group</footer>
+    <footer>Powered by Groq AI &bull; Periferia IT Group &bull; Desarrollado por Juan Aragón &bull; 📞 314 674 7578</footer>
 
     <script>
         // ===== STATE =====
@@ -596,6 +629,7 @@
 
         // ===== DOM ELEMENTS =====
         const textarea = document.getElementById('descripcion');
+        const clienteInput = document.getElementById('nombre-cliente');
         const charCount = document.getElementById('char-count');
         const charWarn = document.getElementById('char-warn');
         const btnEstimar = document.getElementById('btn-estimar');
@@ -650,6 +684,8 @@
             const desc = textarea.value.trim();
             if (desc.length < 20) return;
 
+            const nombreCliente = clienteInput.value.trim() || 'Cliente no especificado';
+
             errorBox.classList.add('hidden');
             showStep('loading');
             startLoadingAnimation();
@@ -658,7 +694,7 @@
                 const res = await fetch('/api/estimar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ descripcion: desc })
+                    body: JSON.stringify({ descripcion: desc, cliente: nombreCliente })
                 });
 
                 const data = await res.json();
@@ -666,6 +702,9 @@
                 if (data.error) {
                     throw new Error(data.error);
                 }
+
+                // Override client name with what was typed
+                if (nombreCliente) data.cliente = nombreCliente;
 
                 resultData = data;
                 renderResult(data);
@@ -685,12 +724,29 @@
             // Header
             document.getElementById('result-cliente').textContent = data.cliente || 'Proyecto';
 
-            // Tags
+            // Tags with labels
             const tagsDiv = document.getElementById('result-tags');
             tagsDiv.innerHTML = '';
-            if (data.backend) tagsDiv.innerHTML += `<span class="tag tag-green">${data.backend}</span>`;
-            if (data.frontend) tagsDiv.innerHTML += `<span class="tag tag-teal">${data.frontend}</span>`;
-            if (data.base_datos) tagsDiv.innerHTML += `<span class="tag tag-purple">${data.base_datos}</span>`;
+            if (data.backend) tagsDiv.innerHTML += `
+                <div class="tag-labeled">
+                    <span class="tag tag-green">${data.backend}</span>
+                    <span class="tag-caption" style="color:var(--green-dark)">Backend</span>
+                </div>`;
+            if (data.frontend) tagsDiv.innerHTML += `
+                <div class="tag-labeled">
+                    <span class="tag tag-teal">${data.frontend}</span>
+                    <span class="tag-caption" style="color:#2e7d32">Frontend</span>
+                </div>`;
+            if (data.base_datos) tagsDiv.innerHTML += `
+                <div class="tag-labeled">
+                    <span class="tag tag-purple">${data.base_datos}</span>
+                    <span class="tag-caption" style="color:#7b1fa2">Base de Datos</span>
+                </div>`;
+            if (data.cloud) tagsDiv.innerHTML += `
+                <div class="tag-labeled">
+                    <span class="tag tag-blue">${data.cloud}</span>
+                    <span class="tag-caption" style="color:#1565c0">Cloud</span>
+                </div>`;
 
             // Calculate totals
             const acts = data.actividades || [];
@@ -766,6 +822,7 @@
         function nuevaEstimacion() {
             resultData = null;
             textarea.value = '';
+            clienteInput.value = '';
             charCount.textContent = '0';
             btnEstimar.disabled = true;
             errorBox.classList.add('hidden');

@@ -36,6 +36,7 @@ ESTRUCTURA JSON:
   "backend": "Tecnologías",
   "frontend": "Tecnologías",
   "base_datos": "DB",
+  "cloud": "Proveedor Cloud (AWS, Azure, GCP, etc.)",
   "actividades": [
     {"actividad": "Nombre", "descripcion": "Detalle", "funcionalidades": "Funciones", "horas": 8}
   ],
@@ -53,6 +54,7 @@ def index():
 def estimar():
     data = request.get_json()
     descripcion = data.get("descripcion", "")
+    cliente = data.get("cliente", "")
 
     if not descripcion or len(descripcion) < 20:
         return jsonify({"error": "La descripción es muy corta"}), 400
@@ -61,12 +63,14 @@ def estimar():
         return jsonify({"error": "API Key no configurada en el servidor"}), 500
 
     try:
+        prompt_usuario = f"Cliente: {cliente}\n\nEstima esto: {descripcion}" if cliente else f"Estima esto: {descripcion}"
+
         # Uso del cliente oficial de Groq
         completion = client.chat.completions.create(
             model=MODELO,
             messages=[
                 {"role": "system", "content": PROMPT_SISTEMA},
-                {"role": "user", "content": f"Estima esto: {descripcion}"}
+                {"role": "user", "content": prompt_usuario}
             ],
             temperature=0.2,
             max_tokens=2048
@@ -100,27 +104,29 @@ def descargar_excel():
     ws["A1"] = "RESUMEN DE ESTIMACIÓN"
     ws["A1"].font = Font(size=14, bold=True)
     
-    info_labels = [("A3", "CLIENTE:", data.get("cliente")), 
-                   ("A4", "BACKEND:", data.get("backend")),
-                   ("A5", "FRONTEND:", data.get("frontend")),
-                   ("A6", "DB:", data.get("base_datos"))]
+    info_labels = [
+        ("CLIENTE:", data.get("cliente")), 
+        ("BACKEND:", data.get("backend")),
+        ("FRONTEND:", data.get("frontend")),
+        ("DB:", data.get("base_datos")),
+        ("CLOUD:", data.get("cloud", "N/A"))
+    ]
     
-    for cell_id, label, value in info_labels:
-        ws[cell_id] = label
-        ws[cell_id].font = Font(bold=True)
-        ws.cell(row=int(cell_id[1]), column=2, value=value)
+    for i, (label, value) in enumerate(info_labels, start=3):
+        ws.cell(row=i, column=1, value=label).font = Font(bold=True)
+        ws.cell(row=i, column=2, value=value)
 
     # --- Tabla de Actividades ---
     headers = ["Actividad", "Descripción", "Funcionalidades", "Horas"]
     for col, text in enumerate(headers, 1):
-        cell = ws.cell(row=8, column=col, value=text)
+        cell = ws.cell(row=9, column=col, value=text)
         cell.font = header_font
         cell.fill = header_fill
         cell.border = thin_border
         cell.alignment = center_align
 
     actividades = data.get("actividades", [])
-    current_row = 9
+    current_row = 10
     for act in actividades:
         ws.cell(row=current_row, column=1, value=act.get("actividad")).border = thin_border
         ws.cell(row=current_row, column=2, value=act.get("descripcion")).border = thin_border
