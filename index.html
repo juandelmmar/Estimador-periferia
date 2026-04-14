@@ -466,8 +466,83 @@
             line-height: 1.4;
         }
 
-        /* ===== FOOTER ===== */
-        footer {
+        .btn-pdf {
+            flex: 1;
+            min-width: 200px;
+            padding: 16px;
+            background: transparent;
+            color: var(--green-neon);
+            border: 2px solid var(--green-neon);
+            border-radius: 64px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-pdf:hover {
+            background: var(--green-neon);
+            color: var(--green-dark);
+        }
+
+        /* ===== PRINT / PDF STYLES ===== */
+        @media print {
+            body {
+                background: white !important;
+                color: #212121 !important;
+            }
+            header, footer, #step-input, #step-loading, .btn-row, .features {
+                display: none !important;
+            }
+            main { max-width: 100%; padding: 0; }
+            #step-result { display: block !important; }
+            .card {
+                box-shadow: none !important;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                page-break-inside: avoid;
+            }
+            .stat-box-green, .stat-box-dark {
+                border: 2px solid #15601d;
+            }
+            .stat-number { color: #15601d !important; }
+            thead tr { background: #15601d !important; }
+            th { color: white !important; background: #15601d !important; }
+
+            /* Print header */
+            #print-header {
+                display: flex !important;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px 0 24px;
+                border-bottom: 3px solid #15601d;
+                margin-bottom: 20px;
+            }
+            #print-header .ph-logo {
+                font-family: 'Outfit', sans-serif;
+                font-size: 22px;
+                font-weight: 800;
+                color: #15601d;
+            }
+            #print-header .ph-meta {
+                text-align: right;
+                font-size: 11px;
+                color: #555;
+            }
+            #print-footer {
+                display: block !important;
+                text-align: center;
+                font-size: 10px;
+                color: #888;
+                margin-top: 32px;
+                padding-top: 12px;
+                border-top: 1px solid #ddd;
+            }
+        }
+
+        #print-header { display: none; }
+        #print-footer { display: none; }
             text-align: center;
             padding: 24px;
             color: rgba(204, 255, 214, 0.3);
@@ -519,6 +594,9 @@
                 <label for="nombre-cliente">Nombre del cliente</label>
                 <input type="text" id="nombre-cliente" placeholder="Ej: Empresa XYZ S.A.S." />
 
+                <label for="nombre-ingeniero" style="margin-top: 16px;">Estimacion por</label>
+                <input type="text" id="nombre-ingeniero" placeholder="-" />
+
                 <label for="descripcion" style="margin-top: 20px;">Descripción del proyecto</label>
                 <textarea id="descripcion" placeholder="Ejemplo: Necesito desarrollar un dashboard en Power BI conectado a Azure DevOps vía OData para visualizar métricas de productividad del equipo de desarrollo, incluyendo velocity, lead time, cycle time y cumplimiento de sprints..."></textarea>
 
@@ -537,6 +615,7 @@
             <div class="features">
                 <div class="feature-item"><span>⚡</span> Estimación en segundos</div>
                 <div class="feature-item"><span>📊</span> Exporta a Excel</div>
+                <div class="feature-item"><span>📄</span> Descarga PDF</div>
                 <div class="feature-item"><span>🤖</span> IA especializada</div>
             </div>
         </section>
@@ -550,6 +629,15 @@
 
         <!-- ===== STEP 3: RESULTS ===== -->
         <section id="step-result" class="hidden fade-in">
+
+            <!-- Print-only header -->
+            <div id="print-header">
+                <div class="ph-logo">PERIFERIA IT GROUP</div>
+                <div class="ph-meta">
+                    <div id="ph-ingeniero"></div>
+                    <div id="ph-fecha"></div>
+                </div>
+            </div>
 
             <!-- Header card -->
             <div class="card" id="result-header-card">
@@ -613,9 +701,15 @@
                 </div>
             </div>
 
+            <!-- Print footer -->
+            <div id="print-footer">
+                Periferia IT Group &bull; Desarrollado por Juan Aragón &bull; 314 674 7578 &bull; Powered by Groq AI
+            </div>
+
             <!-- Actions -->
             <div class="btn-row">
-                <button class="btn-download" onclick="descargarExcel()">Descargar Excel</button>
+                <button class="btn-download" onclick="descargarExcel()">⬇ Descargar Excel</button>
+                <button class="btn-pdf" onclick="descargarPDF()">📄 Descargar PDF</button>
                 <button class="btn-secondary" onclick="nuevaEstimacion()">Nueva estimación</button>
             </div>
         </section>
@@ -630,6 +724,7 @@
         // ===== DOM ELEMENTS =====
         const textarea = document.getElementById('descripcion');
         const clienteInput = document.getElementById('nombre-cliente');
+        const ingenieroInput = document.getElementById('nombre-ingeniero');
         const charCount = document.getElementById('char-count');
         const charWarn = document.getElementById('char-warn');
         const btnEstimar = document.getElementById('btn-estimar');
@@ -685,6 +780,7 @@
             if (desc.length < 20) return;
 
             const nombreCliente = clienteInput.value.trim() || 'Cliente no especificado';
+            const nombreIngeniero = ingenieroInput.value.trim() || '';
 
             errorBox.classList.add('hidden');
             showStep('loading');
@@ -694,7 +790,7 @@
                 const res = await fetch('/api/estimar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ descripcion: desc, cliente: nombreCliente })
+                    body: JSON.stringify({ descripcion: desc, cliente: nombreCliente, ingeniero: nombreIngeniero })
                 });
 
                 const data = await res.json();
@@ -703,8 +799,9 @@
                     throw new Error(data.error);
                 }
 
-                // Override client name with what was typed
+                // Override with user-provided values
                 if (nombreCliente) data.cliente = nombreCliente;
+                if (nombreIngeniero) data.ingeniero = nombreIngeniero;
 
                 resultData = data;
                 renderResult(data);
@@ -724,9 +821,19 @@
             // Header
             document.getElementById('result-cliente').textContent = data.cliente || 'Proyecto';
 
+            // Print header meta
+            const ing = data.ingeniero ? `Ing. ${data.ingeniero}` : 'Periferia IT Group';
+            document.getElementById('ph-ingeniero').textContent = ing;
+            document.getElementById('ph-fecha').textContent = `Fecha: ${new Date().toLocaleDateString('es-CO', {day:'2-digit',month:'long',year:'numeric'})}`;
+
             // Tags with labels
             const tagsDiv = document.getElementById('result-tags');
             tagsDiv.innerHTML = '';
+            if (data.ingeniero) tagsDiv.innerHTML += `
+                <div class="tag-labeled">
+                    <span class="tag" style="background:#fff3e0;color:#e65100">${data.ingeniero}</span>
+                    <span class="tag-caption" style="color:#e65100">Ingeniero</span>
+                </div>`;
             if (data.backend) tagsDiv.innerHTML += `
                 <div class="tag-labeled">
                     <span class="tag tag-green">${data.backend}</span>
@@ -818,11 +925,23 @@
             }
         }
 
+        // ===== DOWNLOAD PDF =====
+        function descargarPDF() {
+            if (!resultData) return;
+            const cliente = (resultData.cliente || 'Proyecto').replace(/\s+/g, '_').substring(0, 30);
+            // Set document title temporarily so the PDF filename matches
+            const prevTitle = document.title;
+            document.title = `Estimacion_${cliente}`;
+            window.print();
+            document.title = prevTitle;
+        }
+
         // ===== NEW ESTIMATION =====
         function nuevaEstimacion() {
             resultData = null;
             textarea.value = '';
             clienteInput.value = '';
+            ingenieroInput.value = '';
             charCount.textContent = '0';
             btnEstimar.disabled = true;
             errorBox.classList.add('hidden');
