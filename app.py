@@ -20,7 +20,7 @@ app = Flask(__name__, static_folder=".", static_url_path="")
 # En Render: Agrégala en la pestaña 'Environment'
 api_key = os.environ.get("GROQ_API_KEY")
 client = Groq(api_key=api_key)
-MODELO = "llama-3.3-70b-versatile"
+MODELO = "llama-3.1-8b-instant"
 
 PROMPT_SISTEMA = """Actúa como un líder técnico senior con experiencia en estimación de proyectos de software.
 Tu objetivo es generar una estimación de horas justa y realista.
