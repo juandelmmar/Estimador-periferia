@@ -1,51 +1,21 @@
-"""
-Backend - Estimador de Proyectos con IA (Edición Producción)
-==========================================================
-Cliente: Periferia IT Group
-Tecnologías: Flask + Groq (Llama 3.3) + OpenPyXL
-"""
-
 import os
 import json
 import tempfile
 import openpyxl
 from flask import Flask, request, jsonify, send_file, send_from_directory
-from groq import Groq
+# IMPORTAMOS LA LIBRERÍA DE GOOGLE EN LUGAR DE GROQ
+import google.generativeai as genai
 from openpyxl.styles import Font, Alignment, Border, Side, PatternFill
 
 app = Flask(__name__, static_folder=".", static_url_path="")
 
-# ============ CONFIGURACIÓN DE SEGURIDAD ============
-# En local: Puedes setear esto en tu terminal con $env:GROQ_API_KEY="tu_llave"
-# En Render: Agrégala en la pestaña 'Environment'
-api_key = os.environ.get("GROQ_API_KEY")
-client = Groq(api_key=api_key)
-MODELO = "Gemini3.5 Flash" 
+# ============ CONFIGURACIÓN DE SEGURIDAD (GEMINI) ============
+# Tomamos la llave que configuraste en el Paso 1 en Render
+api_key = os.environ.get("GEMINI_API_KEY")
+if api_key:
+    genai.configure(api_key=api_key)
 
-PROMPT_SISTEMA = """Actúa como un líder técnico senior con experiencia en estimación de proyectos de software.
-Tu objetivo es generar una estimación de horas justa y realista.
-
-REGLAS CRÍTICAS:
-1. Las horas deben ser JUSTAS: ni infladas ni demasiado bajas.
-2. El rango típico por actividad es entre 4 y 40 horas.
-3. Responde SOLO en formato JSON exacto, sin markdown ni texto extra.
-
-ESTRUCTURA JSON:
-{
-  "cliente": "Nombre",
-  "ingeniero": "Nombre del ingeniero",
-  "backend": "Tecnologías",
-  "frontend": "Tecnologías",
-  "base_datos": "DB",
-  "cloud": "Proveedor Cloud (AWS, Azure, GCP, etc.)",
-  "actividades": [
-    {"actividad": "Nombre", "descripcion": "Detalle", "funcionalidades": "Funciones", "horas": 8}
-  ],
-  "pruebas_pct": 15,
-  "entendimiento_pct": 10,
-  "riesgo_pct": 5,
-  "notas": ["nota1"]
-}"""
+# ... (Mantén tu PROMPT_SISTEMA exactamente igual) ...
 
 @app.route("/")
 def index():
@@ -62,7 +32,7 @@ def estimar():
         return jsonify({"error": "La descripción es muy corta"}), 400
 
     if not api_key:
-        return jsonify({"error": "API Key no configurada en el servidor"}), 500
+        return jsonify({"error": "API Key de Gemini no configurada en el servidor"}), 500
 
     try:
         parts = []
@@ -71,21 +41,21 @@ def estimar():
         parts.append(f"Descripción: {descripcion}")
         prompt_usuario = "\n".join(parts)
 
-        # Uso del cliente oficial de Groq
-        completion = client.chat.completions.create(
-            model=MODELO,
-            messages=[
-                {"role": "system", "content": PROMPT_SISTEMA},
-                {"role": "user", "content": prompt_usuario}
-            ],
-            temperature=0.2,
-            max_tokens=2048
+        # INICIALIZAMOS EL MODELO GEMINI FLASH
+        # (Actualmente la versión estable y rápida es gemini-1.5-flash)
+        model = genai.GenerativeModel(
+            model_name="gemini-1.5-flash",
+            system_instruction=PROMPT_SISTEMA
         )
 
-        respuesta_ia = completion.choices[0].message.content
+        # GENERAMOS LA RESPUESTA
+        response = model.generate_content(prompt_usuario)
+        respuesta_ia = response.text
+        
         # Limpieza por si la IA devuelve markdown
         clean_json = respuesta_ia.replace("```json", "").replace("```", "").strip()
         parsed = json.loads(clean_json)
+        
         # Override with user-provided values
         if cliente: parsed['cliente'] = cliente
         if ingeniero: parsed['ingeniero'] = ingeniero
@@ -94,6 +64,8 @@ def estimar():
 
     except Exception as e:
         return jsonify({"error": f"Error al procesar con IA: {str(e)}"}), 500
+
+
 
 @app.route("/api/descargar-excel", methods=["POST"])
 def descargar_excel():
