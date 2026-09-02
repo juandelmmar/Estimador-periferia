@@ -1,4 +1,4 @@
 flask
 openpyxl
-groq
+google-generativeai
 gunicorn
