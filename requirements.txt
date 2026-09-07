@@ -1,4 +1,5 @@
-flask
-openpyxl
-google-generativeai
-gunicorn
+flask>=3.0
+flask-cors>=4.0
+groq>=0.11
+openpyxl>=3.1
+gunicorn>=22.0
